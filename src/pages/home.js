@@ -7,7 +7,6 @@ function HomePage() {
   let [status, setStatus] = useState('pending')
 
 
-
   return (
     <main>
       <span className={clsx(
