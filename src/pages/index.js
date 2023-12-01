@@ -1,17 +1,30 @@
 import React from 'react'
-import HTTP from '@/utils/HTTP'
-function index() {
-  const handleTest = async () => {
-    const response = await HTTP.get('chat/api/chatroom/')
-    console.log(response)
-  }
-
-
+import { useState } from 'react';
+import Sidebar from '@/components/sidebar/SideBar'
+import ChatBody from '@/components/chatbody/ChatBody';
+function HomePage(props) {
+  const [currentChattingMember, setCurrentChattingMember] = useState({});
+  const [onlineUserList, setOnlineUserList] = useState([]);
+  
   return (
-    <div>
-      <button onClick={handleTest}>Test</button>
+    <div className="h-screen flex">
+      <div className='flex w-full gap-3'>
+        <div className="w-1/5 border-r border-gray-light">
+          <Sidebar 
+            setCurrentChattingMember={setCurrentChattingMember}
+            onlineUserList={onlineUserList}
+          />
+        </div>
+        <div className="w-4/5">
+          <ChatBody 
+            setOnlineUserList={setOnlineUserList}
+            currentChattingMember={currentChattingMember}
+          />
+
+        </div>
+      </div>
     </div>
   )
 }
 
-export default index
+export default HomePage

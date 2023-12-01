@@ -20,10 +20,8 @@ function LoginForm() {
       password,
     })
     console.log(response)
-    if (response && response.data && response.data.code == 200) {
-      setLoading(false)
+    if (response.data.code == 200) {
       router.push('/')
-
     }
     else {
       setError(true)
