@@ -19,8 +19,12 @@ function LoginForm() {
       username,
       password,
     })
-    console.log(response)
     if (response.data.code == 200) {
+      HTTP.get("account/api/me/").then((res) => {
+        if(res.status==200) {
+          localStorage.setItem("account", JSON.stringify(res.data))
+        }
+      })
       router.push('/')
     }
     else {

@@ -1,38 +1,37 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import CardUser from '../carduser/CardUser'
+import CardRoom from '../cardroom/CardRoom'
+import HTTP from '@/utils/HTTP'
 function SideBar(props) {
+  const [chatRoom, setChatRoom] = useState()
+  const [rooms, setRooms] = useState()
   const [chatUser, setChatUser] = useState()
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-    setUsers([
-      {
-        id: 1,
-        full_name: 'John Doe',
-        email: '1',
-        is_online: false
-      },
-      {
-        id: 2,
-        full_name: 'John Doe 2',
-        email: '1',
-        is_online: false
-      },
-    ])
-    setChatUser(users[0])
+    const getChatRooms = () => {
+      HTTP.get("chat/api/chatroom").then((res) => {
+        if(res.status === 200) {
+          setRooms(res.data)
+        }
+        else {
+          console.log(res);
+        }
+      })
+    }
+    getChatRooms()
   }, [])
-  console.log(chatUser);
 
   return (
     <div className='block'>
-      {users.map((user, index) => {
+      {rooms?.map((room, index) => {
         return (
           <div onClick={() => {
-            props.setCurrentChattingMember(user);
-            setChatUser(user);
+            props.setCurrentChattingMember(room);
+            setChatRoom(room);
           }}>
-            <CardUser key={index} user={user} chatUser={chatUser}/>
+            <CardRoom key={index} room={room} chatRoom={chatRoom}/>
           </div>
         )
       })}
