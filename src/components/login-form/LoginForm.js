@@ -36,7 +36,7 @@ function LoginForm() {
 
   return (
     <div className="loginform flex flex-col gap-4">
-    <div className="title font-bold text-xl pb-6 pt-16">
+    <div className="title font-bold text-xl py-6">
       Login
     </div>
       <div className="input__container flex flex-col gap-1">
@@ -57,6 +57,9 @@ function LoginForm() {
       <button className='w-full bg-red rounded-lg text-white px-4 py-3 text-sm' 
         onClick={handleLogin}
       >Login</button>
+      <div className="message flex gap-1 justify-center">
+        <p className=' text-sm font-normal'>Don't have an account? <a href="/auth/register" className='text-blue'>Register</a></p>
+      </div>
     </div>
   )
 }
