@@ -4,59 +4,101 @@ import Image from 'next/image'
 import './ChatbodyStyle.css'
 import HTTP from '@/utils/HTTP';
 import clsx from 'clsx';
+import Cookies from 'js-cookie';
 
 let isTypingSignalSent = false;
 let typingTimer = 0;
 
+if (typeof window !== "undefined") {
+  var account = JSON.parse(localStorage.getItem("account"))
+}
+var socket = new WebSocket("ws://localhost:8000/ws/" + Cookies.get("userId")+ "/");
+
 function ChatBody({ match, currentChattingMember }) {
   const [inputMessage, setInputMessage] = useState("")
   const [messages, setMessages] = useState([])
+  const [userList, setUserList] = useState([])
+  const [userOnline, setUserOnline] = useState([])
   const [typing, setTyping] = useState(false)
-  let account = null
-  if (typeof window !== "undefined") {
-    account = JSON.parse(localStorage.getItem("account"))
-  
+
+  socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === "chat_message") {
+      fetchChatMessage()
+    }
   }
 
-  const chatMessageTypingHandler = (event) => {
-    if (event.keyCode !== 13) {
-      if (!isTypingSignalSent) {
-        sendTypingSignal(true);
-        isTypingSignalSent = true;
-      }
-      clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => {
-        sendTypingSignal(false);
-        isTypingSignalSent = false;
-      }, 3000);
-    } else {
-      clearTimeout(typingTimer);
-      isTypingSignalSent = false;
+  useEffect(() => {
+    if (currentChattingMember.id) {
+      fetchChatMessage();
+      fetchUserList();
     }
+  }, [currentChattingMember.id])
+
+  const chatMessageTypingHandler = (event) => {
+    // if (event.keyCode !== 13) {
+    //   if (!isTypingSignalSent) {
+    //     sendTypingSignal(true);
+    //     isTypingSignalSent = true;
+    //   }
+    //   clearTimeout(typingTimer);
+    //   typingTimer = setTimeout(() => {
+    //     sendTypingSignal(false);
+    //     isTypingSignalSent = false;
+    //   }, 3000);
+    // } else {
+    //   clearTimeout(typingTimer);
+    //   isTypingSignalSent = false;
+    // }
   };
-  
   const fetchChatMessage = async () => {
     if(currentChattingMember.id) {
       HTTP.get(`chat/api/chatroommessage/${currentChattingMember.id}/`).then((response) => {
         if(response.status === 200) {
-          setMessages(response.data)
+          setMessages(response.data.reverse())
         }
       })
     }
   };
+  const fetchUserList = async () => {
+    HTTP.get(`chat/api/chatroom/${currentChattingMember.id}/`).then((response) => {
+      if(response.status === 200) {
+        setUserList(response.data.member)
+        response.data.member.map((user) => {
+          if(user.is_online) {
+            setUserOnline((userOnline) => [...userOnline, user.id])
+          }
+        }
+        )
+      }
+    })
+  }
   const sendTypingSignal = (typing) => {
-    // socket.send(
-    //   JSON.stringify({
-    //     action: SocketActions.TYPING,
-    //     typing: typing,
-    //     user: CommonUtil.getUserId(),
-    //     roomId: CommonUtil.getActiveChatId(match),
-    //   })
-    // );
+    socket.send(
+      JSON.stringify({
+        action: "typing",
+        typing: typing,
+        user: userOnline,
+        roomId: currentChattingMember.id,
+      })
+    );
   };
-  useEffect(() => {
-    fetchChatMessage()
-  }, [currentChattingMember.id])
+  const messageSubmitHandler = (event) => {
+    event.preventDefault();
+    if (inputMessage) {
+      const data = {
+        type: "message",
+        message: inputMessage,
+        userList: userOnline,
+        userId: account.id,
+        roomId: currentChattingMember.id,
+      };
+      socket.send(JSON.stringify(data));
+      setInputMessage("");
+    }
+  }
+  
+  
   
   return (
     <div className='block w-full h-screen'>
@@ -91,10 +133,11 @@ function ChatBody({ match, currentChattingMember }) {
         <div className='chatinput flex h-14'>
           <div className='flex w-full py-6 px-2 items-center'>
             <input type="text" className='w-full border p-2 border-gray-light rounded-l-lg' placeholder='Type message' 
+              value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyUp={chatMessageTypingHandler}
             />
-            <button className='px-5 py-2 bg-red-dark-2 rounded-r-lg text-white' onClick={()=>{}} disabled={!inputMessage}>Send</button>
+            <button className='px-5 py-2 bg-red-dark-2 rounded-r-lg text-white' onClick={messageSubmitHandler} disabled={!inputMessage}>Send</button>
           </div>
         </div>
       

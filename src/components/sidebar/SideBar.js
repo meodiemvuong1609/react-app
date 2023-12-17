@@ -32,7 +32,7 @@ function SideBar(props) {
       <div className='block'>
       {rooms?.map((room, index) => {
         return (
-          <div onClick={() => {
+          <div  key={index} onClick={() => {
             props.setCurrentChattingMember(room);
             setChatRoom(room);
           }}>

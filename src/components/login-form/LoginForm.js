@@ -3,6 +3,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import HTTP from '@/utils/HTTP'
+import Cookies from 'js-cookie'
 
 
 function LoginForm() {
@@ -22,6 +23,8 @@ function LoginForm() {
     if (response.data.code == 200) {
       HTTP.get("account/api/me/").then((res) => {
         if(res.status==200) {
+          console.log(res);
+          Cookies.set('userId', res.data.id)
           localStorage.setItem("account", JSON.stringify(res.data))
         }
       })
