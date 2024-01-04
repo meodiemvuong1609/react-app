@@ -2,6 +2,7 @@ import React from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import HTTP from '@/utils/HTTP'
+import { toast } from 'react-toastify';
 
 function RegisterPage() {
   const [username, setUsername] = useState('')
@@ -27,6 +28,7 @@ function RegisterPage() {
       password,
     })
     if (response.data.code == 200) {
+      toast("Register success !", {title: "Notification"});
       router.push('/auth/login')
     }
     else {
@@ -37,7 +39,7 @@ function RegisterPage() {
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-light-1 px-4">
-      <div className="w-1/2 bg-white rounded-large h-fit p-5">
+      <div className="w-1/3 bg-white rounded-large h-fit p-5">
       <div className="register flex flex-col gap-4">
         <div className="title font-bold text-xl pb-6">
           Register

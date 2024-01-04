@@ -1,9 +1,10 @@
 import React from 'react'
-
-import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux';
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import HTTP from '@/utils/HTTP'
 import Cookies from 'js-cookie'
+import { toast } from 'react-toastify';
 
 
 function LoginForm() {
@@ -13,7 +14,7 @@ function LoginForm() {
   const [error, setError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
-
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     
     const response = await HTTP.post('auth/api/login/', {
@@ -23,9 +24,11 @@ function LoginForm() {
     if (response.data.code == 200) {
       HTTP.get("account/api/me/").then((res) => {
         if(res.status==200) {
-          console.log(res);
           Cookies.set('userId', res.data.id)
           localStorage.setItem("account", JSON.stringify(res.data))
+          toast("Login success !", {title: "Notification"});
+          dispatch({type: 'LOGIN', payload: res.data})
+          router.push('/')
         }
       })
       router.push('/')
@@ -52,6 +55,11 @@ function LoginForm() {
         <p className='text-sm font-medium'>Password</p>
         <input type="password" className='w-full rounded-lg p-3 border border-gray-light text-sm' placeholder='Type password' 
           onChange={(e) => setPassword(e.target.value)}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
+              handleLogin()
+            }
+          }}
         />
       </div>
       <div className="message flex gap-1">
@@ -67,4 +75,4 @@ function LoginForm() {
   )
 }
 
-export default LoginForm
+export default LoginForm;

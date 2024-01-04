@@ -18,6 +18,8 @@ function SideBar(props) {
         else {
           console.log(res);
         }
+      }).catch((err) => {
+        console.log(err);
       })
     }
     getChatRooms()
@@ -28,7 +30,13 @@ function SideBar(props) {
   }
 
   return (
-    <div className='h-full relative'>
+    <div>
+      <div className='flex justify-between items-center py-2 px-4'>
+        <div className='text-xl font-medium'>ChatApp</div>
+        <div className='cursor-pointer' onClick={handleCreateRoom}>
+          <img src="/add.png" className='w-6 h-6'/>
+        </div>
+      </div>
       <div className='block'>
       {rooms?.map((room, index) => {
         return (
@@ -46,9 +54,6 @@ function SideBar(props) {
         )
       }
       </div>
-      <button className=' absolute py-2 px-3 bg-red text-white rounded-lg bottom-2 left-2'
-        onClick={handleCreateRoom}
-      >Create room</button>
       {isPopup && <CreateRoom setIsPopup={setIsPopup}/> }
     </div>
   )
